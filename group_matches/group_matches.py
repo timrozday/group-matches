@@ -358,22 +358,22 @@ def condense_group(group, index_conn, equivalent_entities_groups_index, equivale
     
     return condensed_groups
 
-def get_matches(sentence_id, indi_conn):
-    results = indi_conn.execute(f'select id, onto_id, predicate_type, source, locs from matches where sentence_id={sentence_id}')
-    expanded_sentence = eval(list(indi_conn.execute(f"select expanded_sentence from sentences where id={sentence_id}"))[0][0])
+# def get_matches(sentence_id, indi_conn):
+#     results = indi_conn.execute(f'select id, onto_id, predicate_type, source, locs from matches where sentence_id={sentence_id}')
+#     expanded_sentence = eval(list(indi_conn.execute(f"select expanded_sentence from sentences where id={sentence_id}"))[0][0])
     
-    matches = set()
-    for match_id, onto_id, predicate_type, source, locs in results:
-        locs = eval(locs)
-        original_locs = set()
-        for path in locs:
-            original_path = set()
-            for l in path:
-                original_path.update(rec_fetch_parent(l, expanded_sentence))
-            original_locs.add(tuple(original_path))
-        matches.add((onto_id, predicate_type, tuple(original_locs)))
+#     matches = set()
+#     for match_id, onto_id, predicate_type, source, locs in results:
+#         locs = eval(locs)
+#         original_locs = set()
+#         for path in locs:
+#             original_path = set()
+#             for l in path:
+#                 original_path.update(rec_fetch_parent(l, expanded_sentence))
+#             original_locs.add(tuple(original_path))
+#         matches.add((onto_id, predicate_type, tuple(original_locs)))
     
-    return matches
+#     return matches
 
 def exact_path_grouping(matches):
     exact_path_groups = {}
@@ -468,39 +468,48 @@ def group_matches_by_links(links, groups):
 
     return groups
 
-def get_doc_condensed_matches(set_id, indi_conn, index_conn, equivalent_entities_groups_index, equivalent_entities_groups_index_r, disease_hierarchy_index, disease_hierarchy_distance_index, rev_disease_hierarchy_distance_index, source_ranks = {'icd11': 0,
-                                                                                                                                                                                                                                                    'doid': 1,
-                                                                                                                                                                                                                                                    'orphanet': 1,
-                                                                                                                                                                                                                                                    'mondo': 1,
-                                                                                                                                                                                                                                                    'icd10': 2,
-                                                                                                                                                                                                                                                    'snomed': 3,
-                                                                                                                                                                                                                                                    'mesh': 4,
-                                                                                                                                                                                                                                                    'efo': 5}, 
-                                                                                                                                                                                                                                    predicate_type_ranks = {'note': 0,
-                                                                                                                                                                                                                                                            'desc': 1,
-                                                                                                                                                                                                                                                            'oboInOwl:hasBroadSynonym': 2,
-                                                                                                                                                                                                                                                            'oboInOwl:hasNarrowSynonym': 2,
-                                                                                                                                                                                                                                                            'oboInOwl:hasRelatedSynonym': 3,
-                                                                                                                                                                                                                                                            'umls': 3,
-                                                                                                                                                                                                                                                            'synonym': 4,
-                                                                                                                                                                                                                                                            'efo:alternative_term': 4,
-                                                                                                                                                                                                                                                            'altLabel': 4,
-                                                                                                                                                                                                                                                            'oboInOwl:hasExactSynonym': 5,
-                                                                                                                                                                                                                                                            'label': 6,
-                                                                                                                                                                                                                                                            'rdfs:label': 6,
-                                                                                                                                                                                                                                                            'prefLabel': 7,
-                                                                                                                                                                                                                                                            'skos:prefLabel': 7,
-                                                                                                                                                                                                                                                            'pref': 7,
-                                                                                                                                                                                                                                                            'title': 7}):
+def get_doc_condensed_matches(  set_id, 
+                                indi_conn, 
+                                index_conn, 
+                                equivalent_entities_groups_index, 
+                                equivalent_entities_groups_index_r, 
+                                disease_hierarchy_index, 
+                                disease_hierarchy_distance_index, 
+                                rev_disease_hierarchy_distance_index, 
+                                source_ranks =         {'icd11': 0,
+                                                        'doid': 1,
+                                                        'orphanet': 1,
+                                                        'mondo': 1,
+                                                        'icd10': 2,
+                                                        'snomed': 3,
+                                                        'mesh': 4,
+                                                        'efo': 5}, 
+                                predicate_type_ranks = {'note': 0,
+                                                        'desc': 1,
+                                                        'oboInOwl:hasBroadSynonym': 2,
+                                                        'oboInOwl:hasNarrowSynonym': 2,
+                                                        'oboInOwl:hasRelatedSynonym': 3,
+                                                        'umls': 3,
+                                                        'synonym': 4,
+                                                        'efo:alternative_term': 4,
+                                                        'altLabel': 4,
+                                                        'oboInOwl:hasExactSynonym': 5,
+                                                        'label': 6,
+                                                        'rdfs:label': 6,
+                                                        'prefLabel': 7,
+                                                        'skos:prefLabel': 7,
+                                                        'pref': 7,
+                                                        'title': 7}):
+
     spl_id = list(indi_conn.execute(f"select id from spl where set_id=\'{set_id}\'"))[0][0]
     sentences = list(indi_conn.execute(f"select id, sentence, expanded_sentence from sentences where spl_id={spl_id} order by loc,id"))
     
     doc_condensed_matches = {}
-    for sentence_id, original_sentence, expanded_sentence in sentences:
-        matches = get_matches(sentence_id, indi_conn)
+    for s_id, loc, sentence, expanded_sentence, matches in sentences:
+        # matches = get_matches(s_id, indi_conn)
         condensed_matches = group_by_overlap_and_ontology(matches, index_conn, equivalent_entities_groups_index, equivalent_entities_groups_index_r, disease_hierarchy_index, disease_hierarchy_distance_index, rev_disease_hierarchy_distance_index, source_ranks, predicate_type_ranks)
-        for k,v in condensed_matches.items():
-            doc_condensed_matches[(sentence_id,k)] = v
+        for path,group in condensed_matches.items():
+            doc_condensed_matches[(loc,path)] = group
 
     doc_condensed_matches_r = {}
     for k,vs in doc_condensed_matches.items():
@@ -514,10 +523,10 @@ def get_doc_condensed_matches(set_id, indi_conn, index_conn, equivalent_entities
     
     doc_condensed_matches_reformated = []
     for k,v in doc_condensed_matches.items():
-        doc_condensed_matches_reformated.append({'loc': {'sentence_id': k[0], 'path': k[1]}, 'match_groups': {i: list(matches) for i,matches in enumerate(v)}})
+        doc_condensed_matches_reformated.append({'loc': {'sentence_loc': k[0], 'path': k[1]}, 'match_groups': {i: list(matches) for i,matches in enumerate(v)}})
     
     doc_condensed_matches_r_reformated = []
     for k,vs in doc_condensed_matches_r.items():
-        doc_condensed_matches_r_reformated.append({'locs': [{'sentence_id': v[0], 'path': v[1]} for v in vs], 'matches': list(k)})
+        doc_condensed_matches_r_reformated.append({'locs': [{'sentence_loc': v[0], 'path': v[1]} for v in vs], 'matches': list(k)})
     
     return doc_condensed_matches_reformated, doc_condensed_matches_r_reformated
