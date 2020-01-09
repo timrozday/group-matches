@@ -528,4 +528,3 @@ def get_doc_condensed_matches(set_id, indi_conn, index_conn, equivalent_entities
         doc_condensed_matches_r_reformated.append({'locs': [{'sentence_id': v[0], 'path': v[1]} for v in vs], 'matches': list(k)})
     
     return doc_condensed_matches_reformated, doc_condensed_matches_r_reformated
-|
