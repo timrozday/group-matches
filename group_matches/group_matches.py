@@ -298,7 +298,7 @@ def get_labels(index_conn, onto_id):
     
     return labels
 
-def get_top_label(index_conn, onto_id):
+def get_top_label(index_conn, onto_id, predicate_type_ranks):
     labels = get_labels(index_conn, onto_id)
     if len(labels):
         top_predicate_rank = max([predicate_type_ranks[k] for k in labels.keys()])
@@ -306,10 +306,10 @@ def get_top_label(index_conn, onto_id):
         return sorted(top_predicates, key=lambda x:len(x))[0]
     else: return None
     
-def label_groups(picked_groups, index_conn):
+def label_groups(picked_groups, index_conn, predicate_type_ranks):
     picked_labelled_groups = []
     for g in picked_groups:
-        picked_labelled_groups.append({(m[0], m[1], get_top_label(index_conn, m[0])) for m in g})
+        picked_labelled_groups.append({(m[0], m[1], get_top_label(index_conn, m[0], predicate_type_ranks)) for m in g})
         
     return picked_labelled_groups
 
@@ -350,7 +350,7 @@ def condense_group(group, index_conn, equivalent_entities_groups_index, equivale
     groups_dict, group_rels = group_codes(group, equivalent_entities_groups_index_r, equivalent_entities_groups_index, disease_hierarchy_index)
     picked_groups = pick_top_matches(groups_dict, group_rels, source_ranks, predicate_type_ranks)
     picked_groups_w_efo = add_nearest_efo(picked_groups, equivalent_entities_groups_index, equivalent_entities_groups_index_r, disease_hierarchy_distance_index, rev_disease_hierarchy_distance_index)
-    picked_labelled_groups_w_efo = label_groups(picked_groups_w_efo, index_conn)
+    picked_labelled_groups_w_efo = label_groups(picked_groups_w_efo, index_conn, predicate_type_ranks)
     condensed_groups = efo_grouping(picked_labelled_groups_w_efo)
     
 #     for i,group in enumerate(condensed_groups):
