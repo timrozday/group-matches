@@ -157,36 +157,6 @@ def group_codes(onto_codes, equivalence_index, equivalence_index_r, subclass_ind
     
     return groups_dict, group_rels
 
-predicate_type_ranks = {
-    'note': 0,
-    'desc': 1,
-    'oboInOwl:hasBroadSynonym': 2,
-    'oboInOwl:hasNarrowSynonym': 2,
-    'oboInOwl:hasRelatedSynonym': 3,
-    'umls': 3,
-    'synonym': 4,
-    'efo:alternative_term': 4,
-    'altLabel': 4,
-    'oboInOwl:hasExactSynonym': 5,
-    'label': 6,
-    'rdfs:label': 6,
-    'prefLabel': 7,
-    'skos:prefLabel': 7,
-    'pref': 7,
-    'title': 7,
-}
-
-source_ranks = {
-    'icd11': 0,
-    'doid': 1,
-    'orphanet': 1,
-    'mondo': 1,
-    'icd10': 2,
-    'snomed': 3,
-    'mesh': 4,
-    'efo': 5,
-}
-
 def rec_assign_group_distances(group, links_dict, distance, group_distances):
     if group in group_distances.keys():
         if group_distances[group] > distance:
@@ -498,7 +468,30 @@ def group_matches_by_links(links, groups):
 
     return groups
 
-def get_doc_condensed_matches(set_id, indi_conn, index_conn, equivalent_entities_groups_index, equivalent_entities_groups_index_r, disease_hierarchy_index, disease_hierarchy_distance_index, rev_disease_hierarchy_distance_index, source_ranks, predicate_type_ranks):
+def get_doc_condensed_matches(set_id, indi_conn, index_conn, equivalent_entities_groups_index, equivalent_entities_groups_index_r, disease_hierarchy_index, disease_hierarchy_distance_index, rev_disease_hierarchy_distance_index, source_ranks = {'icd11': 0,
+                                                                                                                                                                                                                                                    'doid': 1,
+                                                                                                                                                                                                                                                    'orphanet': 1,
+                                                                                                                                                                                                                                                    'mondo': 1,
+                                                                                                                                                                                                                                                    'icd10': 2,
+                                                                                                                                                                                                                                                    'snomed': 3,
+                                                                                                                                                                                                                                                    'mesh': 4,
+                                                                                                                                                                                                                                                    'efo': 5}, 
+                                                                                                                                                                                                                                    predicate_type_ranks = {'note': 0,
+                                                                                                                                                                                                                                                            'desc': 1,
+                                                                                                                                                                                                                                                            'oboInOwl:hasBroadSynonym': 2,
+                                                                                                                                                                                                                                                            'oboInOwl:hasNarrowSynonym': 2,
+                                                                                                                                                                                                                                                            'oboInOwl:hasRelatedSynonym': 3,
+                                                                                                                                                                                                                                                            'umls': 3,
+                                                                                                                                                                                                                                                            'synonym': 4,
+                                                                                                                                                                                                                                                            'efo:alternative_term': 4,
+                                                                                                                                                                                                                                                            'altLabel': 4,
+                                                                                                                                                                                                                                                            'oboInOwl:hasExactSynonym': 5,
+                                                                                                                                                                                                                                                            'label': 6,
+                                                                                                                                                                                                                                                            'rdfs:label': 6,
+                                                                                                                                                                                                                                                            'prefLabel': 7,
+                                                                                                                                                                                                                                                            'skos:prefLabel': 7,
+                                                                                                                                                                                                                                                            'pref': 7,
+                                                                                                                                                                                                                                                            'title': 7}):
     spl_id = list(indi_conn.execute(f"select id from spl where set_id=\'{set_id}\'"))[0][0]
     sentences = list(indi_conn.execute(f"select id, sentence, expanded_sentence from sentences where spl_id={spl_id} order by loc,id"))
     
