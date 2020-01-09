@@ -50,7 +50,7 @@
 # 			|
 # 			+--	group_matches_by_links
 
-
+import itertools as it
 
 # join the dicts preserving the lower distance (v)
 def join_entities_dict(source_dict, dest_dict):
