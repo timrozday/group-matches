@@ -1,1 +1,1 @@
-__all__ = ['text_query']
+__all__ = ['group_matches']
