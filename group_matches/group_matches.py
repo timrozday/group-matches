@@ -468,7 +468,7 @@ def group_matches_by_links(links, groups):
 
     return groups
 
-def get_doc_condensed_matches(  set_id, 
+def get_doc_condensed_matches(  sentences, 
                                 indi_conn, 
                                 index_conn, 
                                 equivalent_entities_groups_index, 
@@ -500,9 +500,6 @@ def get_doc_condensed_matches(  set_id,
                                                         'skos:prefLabel': 7,
                                                         'pref': 7,
                                                         'title': 7}):
-
-    spl_id = list(indi_conn.execute(f"select id from spl where set_id=\'{set_id}\'"))[0][0]
-    sentences = list(indi_conn.execute(f"select id, sentence, expanded_sentence from sentences where spl_id={spl_id} order by loc,id"))
     
     doc_condensed_matches = {}
     for s_id, loc, sentence, expanded_sentence, matches in sentences:
