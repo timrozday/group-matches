@@ -414,7 +414,7 @@ def group_by_overlap_and_ontology(matches, index_conn, equivalent_entities_group
         
     return condensed_matches
 
-def matches_grouping(groups):  # group based on common EFO IDs if the distance is 0
+def matches_grouping(groups, source_ranks):  # group based on common EFO IDs if the distance is 0
     groups = list(groups.items())
     links = set()
     for g1,g2 in it.combinations(range(len(groups)),2):
@@ -516,7 +516,7 @@ def get_doc_condensed_matches(  sentences,
             try: doc_condensed_matches_r[matches].add(k)
             except: doc_condensed_matches_r[matches] = {k}
     
-    doc_condensed_matches_r = matches_grouping(doc_condensed_matches_r)
+    doc_condensed_matches_r = matches_grouping(doc_condensed_matches_r, source_ranks)
     
     doc_condensed_matches_reformated = []
     for k,v in doc_condensed_matches.items():
