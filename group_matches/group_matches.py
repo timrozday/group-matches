@@ -469,6 +469,7 @@ def group_matches_by_links(links, groups):
     return groups
 
 def sort_score_f(x, source_ranks, predicate_type_ranks):
+    direct_score = 1  # scores whether the predicate is direct or not
     try: 
         predicate_score = predicate_type_ranks[x[1]]
     except:
@@ -476,12 +477,13 @@ def sort_score_f(x, source_ranks, predicate_type_ranks):
             predicate_score = 7
         else:
             predicate_score = 0
+            direct_score = 0
 
     source_score = source_ranks[x[0].split(':')[0]]
 
     name_score = 0 if x[2] is None else 1
 
-    return (predicate_score, source_score, name_score, x[0])
+    return (direct_score, source_score, predicate_score, name_score, x[0])
 
 def get_doc_condensed_matches(  sentences, 
                                 indi_conn, 
