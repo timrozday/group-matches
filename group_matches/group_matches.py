@@ -468,7 +468,7 @@ def group_matches_by_links(links, groups):
 
     return groups
 
-def sort_score_f(x):
+def sort_score_f(x, source_ranks, predicate_type_ranks):
     try: 
         predicate_score = predicate_type_ranks[x[1]]
     except:
@@ -521,7 +521,7 @@ def get_doc_condensed_matches(  sentences,
         # matches = get_matches(s_id, indi_conn)
         condensed_matches = group_by_overlap_and_ontology(matches, index_conn, equivalent_entities_groups_index, equivalent_entities_groups_index_r, disease_hierarchy_index, disease_hierarchy_distance_index, rev_disease_hierarchy_distance_index, source_ranks, predicate_type_ranks)
         for path,group in condensed_matches.items():
-            doc_condensed_matches[(loc,path)] = [tuple(sorted(m, key=lambda x:sort_score_f(x), reverse=True)) for m in group]
+            doc_condensed_matches[(loc,path)] = [tuple(sorted(m, key=lambda x:sort_score_f(x, source_ranks, predicate_type_ranks), reverse=True)) for m in group]
 
     doc_condensed_matches_r = {}
     for k,vs in doc_condensed_matches.items():
