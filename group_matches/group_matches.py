@@ -468,6 +468,21 @@ def group_matches_by_links(links, groups):
 
     return groups
 
+def sort_score_f(x):
+    try: 
+        predicate_score = predicate_type_ranks[x[1]]
+    except:
+        if x[1] == "nearest_efo:0":
+            predicate_score = 7
+        else:
+            predicate_score = 0
+
+    source_score = source_ranks[x[0].split(':')[0]]
+
+    name_score = 0 if x[2] is None else 1
+
+    return (predicate_score, source_score, name_score, x[0])
+
 def get_doc_condensed_matches(  sentences, 
                                 indi_conn, 
                                 index_conn, 
@@ -506,13 +521,12 @@ def get_doc_condensed_matches(  sentences,
         # matches = get_matches(s_id, indi_conn)
         condensed_matches = group_by_overlap_and_ontology(matches, index_conn, equivalent_entities_groups_index, equivalent_entities_groups_index_r, disease_hierarchy_index, disease_hierarchy_distance_index, rev_disease_hierarchy_distance_index, source_ranks, predicate_type_ranks)
         for path,group in condensed_matches.items():
-            doc_condensed_matches[(loc,path)] = group
+            doc_condensed_matches[(loc,path)] = [tuple(sorted(m, key=lambda x:sort_score_f(x), reverse=True)) for m in group]
 
     doc_condensed_matches_r = {}
     for k,vs in doc_condensed_matches.items():
         matches = []
         for v in vs:
-            matches = tuple(sorted(v, key=lambda x:(source_ranks[x[0].split(':')[0]], 0 if x[2] is None else 1, x[0]), reverse=True))
             try: doc_condensed_matches_r[matches].add(k)
             except: doc_condensed_matches_r[matches] = {k}
     
