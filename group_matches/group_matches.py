@@ -525,10 +525,9 @@ def get_doc_condensed_matches(  sentences,
 
     doc_condensed_matches_r = {}
     for k,vs in doc_condensed_matches.items():
-        matches = []
         for v in vs:
-            try: doc_condensed_matches_r[matches].add(k)
-            except: doc_condensed_matches_r[matches] = {k}
+            try: doc_condensed_matches_r[v].add(k)
+            except: doc_condensed_matches_r[v] = {k}
     
     doc_condensed_matches_r = matches_grouping(doc_condensed_matches_r, source_ranks)
     
