@@ -157,24 +157,52 @@ def group_codes(onto_codes, equivalence_index, equivalence_index_r, subclass_ind
     
     return groups_dict, group_rels
 
-def rec_assign_group_distances(group, links_dict, distance, group_distances):
-    if group in group_distances.keys():
-        if group_distances[group] > distance:
-            group_distances[group] = distance
+def update_distance_index(k,v,d):
+    if k in d.keys():
+        if d[k] > v:
+            d[k] = v
     else:
-        group_distances[group] = distance
+        d[k] = v
+
+def rec_assign_group_distances(group, links_dict, distance, group_distances):
+    update_distance_index(group, distance, group_distances)
         
     if group in links_dict.keys():
         for g in links_dict[group]:
             distances = rec_assign_group_distances(g, links_dict, distance+1, group_distances)
             for k,v in distances.items():
-                if k in group_distances.keys():
-                    if group_distances[k] > v:
-                        group_distances[k] = v
-                else:
-                    group_distances[k] = v
+                update_distance_index(k,v,group_distances)
                 
     return group_distances
+
+def delta_dict(d1,d2):
+    delta = set()
+    for k in d1.keys() | d2.keys():
+        try:
+            v1 = d1[k]
+            v2 = d2[k]
+            if not v1==v2:
+                delta.add(k)
+        except:
+            delta.add(k)
+
+    return delta
+
+def iter_assign_group_distances(roots, links_dict):
+    distances = {root:0 for root in roots}
+    delta_distances = {root:0 for root in roots}
+    while(True):
+        new_distances = {**distances}
+        for new_root,dist in delta_distances.items():
+            if not new_root in links_dict: continue
+            for k in links_dict[new_root]:
+                update_distance_index(k,dist+1,new_distances)
+        
+        delta_distances = {k:new_distances[k] for k in delta_dict(distances,new_distances)}
+        distances = {**new_distances}
+        if len(delta_distances)==0: break
+
+    return distances
 
 def assign_group_distances(links):
     links_dict = {}
@@ -189,16 +217,7 @@ def assign_group_distances(links):
             except: links_dict_r[v] = {k}
 
     roots = set(links_dict.keys()) - set(links_dict_r.keys())
-
-    group_distances = {}
-    for root in roots:
-        distances = rec_assign_group_distances(root, links_dict, 0, {})
-        for k,v in distances.items():
-            if k in group_distances.keys():
-                if group_distances[k] > v:
-                    group_distances[k] = v
-            else:
-                group_distances[k] = v
+    group_distances = iter_assign_group_distances(roots, links_dict)
 
     return group_distances
 
